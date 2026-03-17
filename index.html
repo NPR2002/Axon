@@ -58,15 +58,6 @@
             scrollbar-color: var(--primary) var(--bg-dark);
         }
 
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            pointer-events: none;
-        }
 
         .container {
             max-width: 1100px;
@@ -168,17 +159,39 @@
             letter-spacing: -4px;
             line-height: 1;
             position: relative;
-            background: linear-gradient(135deg, #ffffff 20%, var(--primary) 50%, #888 100%);
-            background-size: 200% auto;
+
+            /* Updated Gradient: Using 4 points creates a smoother 'wave' transition */
+            background: linear-gradient(30deg,
+                    #ffffff 10%,
+                    var(--primary) 40%,
+                    #ffffff 50%,
+                    var(--primary) 60%,
+                    #ffffff 90%);
+
+            /* Scale up significantly to allow 'liquid' movement */
+            background-size: 400% 400%;
+
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+
+            /* Glow filter that matches your primary blue */
             filter: drop-shadow(0 0 15px rgba(0, 123, 255, 0.4));
-            animation: shineText 6s infinite linear;
+
+            /* Animation: ease-in-out makes it feel like liquid motion */
+            animation: waveText 5s ease-in-out infinite;
         }
 
-        @keyframes shineText {
-            to {
-                background-position: 200% center;
+        @keyframes waveText {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
             }
         }
 
@@ -192,14 +205,14 @@
             background: #00ff88;
             border-radius: 50%;
             box-shadow: 0 0 20px #00ff88;
-            animation: pulseGreen 2s infinite;
+            animation: pulseGreen 1s infinite;
         }
 
         @keyframes pulseGreen {
 
             0%,
             100% {
-                transform: scale(1);
+                transform: scale(1.5);
                 opacity: 1;
             }
 
@@ -208,6 +221,7 @@
                 opacity: 0.6;
             }
         }
+
 
         .trust-badge {
             display: inline-flex;
@@ -368,10 +382,32 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
             text-align: center;
             transition: 0.4s;
+            border-color: white;
+        }
+
+        #create-room-id {
+            border-color: var(--primary);
+        }
+
+        #join-room-id {
+            border-color: var(--primary);
+        }
+
+        #create-room-id:hover {
+            border-color: white;
+        }
+
+        #join-room-id:hover {
+            border-color: white;
         }
 
         .card:hover {
             border-color: var(--primary);
+        }
+
+        .card i {
+            color: white;
+            scale: 2;
         }
 
         input {
@@ -505,66 +541,19 @@
             transform: translateY(-5px);
         }
 
-        /* .dev-section {
-            padding: 100px 0;
-        }
 
-        .dev-card {
-            display: flex;
-            align-items: center;
-            gap: 40px;
-            background: var(--card);
-            padding: 45px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            max-width: 800px;
-            margin: 0 auto;
-            backdrop-filter: blur(20px);
-            transition: 0.4s;
-        }
-
-        .dev-img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 3px solid var(--primary);
-        }
-
-        .dev-info h2 {
-            font-family: var(--font-heading);
-            font-size: 2rem;
-            margin: 0 0 10px;
-        }
-
-        .dev-tag {
-            color: var(--primary);
-            font-weight: 800;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .social-row {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .social-link {
-            color: #555;
-            font-size: 1.4rem;
-            transition: 0.3s;
-        }
-
-        .social-link:hover {
-            color: white;
-            transform: translateY(-3px);
-        } */
 
         footer {
-            padding: 60px 0;
+
+            position: relative;
+            /* Ensures it stays in the document flow */
+            z-index: 10;
+            /* Sits above the canvas waves */
+            padding: 60px 0 40px 0;
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+            /* Adds a subtle fade-in from the background */
+            background: linear-gradient(to top, rgba(99, 99, 99, 0.7), transparent);
         }
 
         .support-btn-fixed {
@@ -699,6 +688,21 @@
         .room-controls button:active {
             transform: scale(0.9);
         }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            /* Sits behind everything */
+            background-color: #000000;
+            /* Deep black base */
+            pointer-events: none;
+            /* Allows clicking through to buttons */
+            display: block;
+        }
     </style>
 </head>
 
@@ -755,14 +759,15 @@
         <div class="section-title">Connection Hub</div>
         <div class="setup-container">
             <div class="card">
-                <h2 style="font-family: var(--font-heading);">Host Session</h2>
-                <input type="text" id="create-name" placeholder="Display Name">
+                <i class="fas fa-satellite-dish card-icon icon-success"></i>
+                <h2 style="font-family: var(--font-heading);">Host</h2>
                 <input type="text" id="create-room-id" placeholder="Unique Room ID">
                 <button class="btn-success" onclick="initPeer(true)">Broadcast Signal</button>
             </div>
+
             <div class="card">
-                <h2 style="font-family: var(--font-heading);">Join Session</h2>
-                <input type="text" id="join-name" placeholder="Display Name">
+                <i class="fas fa-rss card-icon icon-primary"></i>
+                <h2 style="font-family: var(--font-heading);">Join</h2>
                 <input type="text" id="join-room-id" placeholder="Signal ID">
                 <button class="btn-main" onclick="initPeer(false)">Connect to Signal</button>
             </div>
@@ -853,32 +858,129 @@ animation:shine 4s linear infinite;
             </button>
 
             <button onclick="location.reload()"
-                style="background:var(--danger); color:white; border:none; width:50px; height:50px; border-radius:50%; cursor:pointer;">
+                style="background:var(--danger); color:#ffffff; border:none; width:50px; height:50px; border-radius:50%; cursor:pointer;">
                 <i class="fas fa-phone-slash"></i>
             </button>
         </div>
     </div>
     <script>
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let w, h, tick = 0;
+        let mouse = { x: -1000, y: -1000 };
+
+        // 1. Handle Screen Resizing
+        function resize() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+        }
+        // 3. The Animation Loop
+        function render() {
+            // Slight trail effect for motion blur
+            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+            ctx.fillRect(0, 0, w, h);
+
+            const rows = 1; // Number of wave lines
+            const rowGap = h / rows;
+
+            for (let i = 0; i < rows; i++) {
+                ctx.beginPath();
+                ctx.lineWidth = 1;
+
+                // Gradient effect: lower waves are brighter
+                const alpha = 0.05 + (i / rows) * 0.4;
+                ctx.strokeStyle = `#ffffff${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
+
+                const yBase = i * rowGap + (rowGap / 2);
+
+                for (let x = 0; x <= w; x += 10) {
+                    // Distance from mouse/finger
+                    const dist = Math.sqrt((x - mouse.x) ** 2 + (yBase - mouse.y) ** 2);
+
+                    // Interaction Force (Waves surge within 250px of interaction)
+                    const force = Math.max(0, (250 - dist) / 250);
+
+                    // Wave Math (Sine combined with interaction force)
+                    const freq = 0.003;
+                    const speed = tick + (i * 0.5);
+                    const amplitude = 40 + (force * 80);
+
+                    const y = yBase + Math.sin(x * freq + speed) * amplitude;
+
+                    if (x === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            tick += 0.02; // Speed of horizontal flow
+            requestAnimationFrame(render);
+        }
+
+        // Initialize
+        window.addEventListener('resize', resize);
+        resize();
+        render();
         let micEnabled = true;
         let videoEnabled = true;
 
-        function toggleMic() {
-            micEnabled = !micEnabled;
-            localStream.getAudioTracks()[0].enabled = micEnabled;
-            const btn = document.getElementById('mic-btn');
-            btn.style.background = micEnabled ? "#333" : "var(--danger)";
-            btn.innerHTML = micEnabled ? '<i class="fas fa-microphone"></i>' : '<i class="fas fa-microphone-slash"></i>';
-            showToast(micEnabled ? "Microphone On" : "Microphone Muted", micEnabled ? "info" : "error");
+        // Helper to get media with cross-platform constraints
+        async function getMedia(constraints) {
+            try {
+                return await navigator.mediaDevices.getUserMedia(constraints);
+            } catch (err) {
+                console.error("Media Access Denied:", err);
+                return null;
+            }
         }
+        
+
+        function toggleMic() {
+    const btn = document.getElementById('mic-btn');
+    let audioTrack = localStream.getAudioTracks()[0];
+
+    if (!audioTrack) return;
+
+    if (micEnabled) {
+        // Mute without stopping hardware
+        audioTrack.enabled = false;
+        micEnabled = false;
+    } else {
+        // Unmute
+        audioTrack.enabled = true;
+        micEnabled = true;
+    }
+
+    updateButtonUI(btn, micEnabled, 'mic');
+}
 
         function toggleVid() {
-            videoEnabled = !videoEnabled;
-            localStream.getVideoTracks()[0].enabled = videoEnabled;
-            const btn = document.getElementById('vid-btn');
-            btn.style.background = videoEnabled ? "#333" : "var(--danger)";
-            btn.innerHTML = videoEnabled ? '<i class="fas fa-video"></i>' : '<i class="fas fa-video-slash"></i>';
-            showToast(videoEnabled ? "Video On" : "Video Off", videoEnabled ? "info" : "error");
+    const btn = document.getElementById('vid-btn');
+    let videoTrack = localStream.getVideoTracks()[0];
+
+    if (!videoTrack) return;
+
+    if (videoEnabled) {
+        videoTrack.enabled = false;
+        videoEnabled = false;
+    } else {
+        videoTrack.enabled = true;
+        videoEnabled = true;
+    }
+
+    updateButtonUI(btn, videoEnabled, 'vid');
+}
+
+        function updateButtonUI(btn, isEnabled, type) {
+            const icon = type === 'mic'
+                ? (isEnabled ? 'fa-microphone' : 'fa-microphone-slash')
+                : (isEnabled ? 'fa-video' : 'fa-video-slash');
+
+            btn.style.background = isEnabled ? "#333" : "var(--danger, #ff4444)";
+            btn.innerHTML = `<i class="fas ${icon}"></i>`;
         }
+
         const UPI_ID = "9113691203@ybl";
         const PAYEE_NAME = "NP Groups";
 
@@ -915,9 +1017,9 @@ animation:shine 4s linear infinite;
         let peer, localStream;
 
         async function initPeer(isHost) {
-            const n = isHost ? document.getElementById('create-name').value : document.getElementById('join-name').value;
+
             const r = isHost ? document.getElementById('create-room-id').value : document.getElementById('join-room-id').value;
-            if (!n || !r) return showToast("Room ID and Name required", "error");
+            if (!r) return showToast("Room ID and Name required", "error");
 
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -955,16 +1057,13 @@ animation:shine 4s linear infinite;
             showToast("Peer connected", "success");
         }
 
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        function setupCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', setupCanvas);
-        setupCanvas();
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); });
         }, { threshold: 0.1 });
         document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+
+
     </script>
 </body>
 
